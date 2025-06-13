@@ -89,21 +89,11 @@ const handleSubmit = async (e) => {
       body: JSON.stringify({ ...form, regID: id, regLineID: lineProfile?.userId }),
     });
 
-    // ** ใส่ตรงนี้! **
-    if (lineProfile?.userId) {
-      await fetch("/api/line/set-richmenu", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: lineProfile.userId,
-          richMenuId: "richmenu-569c61b59b2603bd9aaa49a124d060f5", // richmenu สมาชิก
-        }),
-      });
-    }
 
     // loading + reset
     setTimeout(() => {
       setLoading(false);
+      liff.closeWindow();
       setForm({ regName: "", regLastname: "", regTel: "", regAgency: "", regPosition: "" });
       setTouched({});
       nameRef.current?.focus();
