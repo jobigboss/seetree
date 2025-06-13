@@ -73,7 +73,7 @@ function RegisterPage() {
   };
 
       // Submit
-    const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   if (!isComplete) return;
   setLoading(true);
@@ -86,10 +86,22 @@ function RegisterPage() {
     await fetch("/api/submit/submit-register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, regID: id,regLineID: lineProfile?.userId }),
+      body: JSON.stringify({ ...form, regID: id, regLineID: lineProfile?.userId }),
     });
 
-    // 3. loading 5 วิ reset
+    // ** ใส่ตรงนี้! **
+    if (lineProfile?.userId) {
+      await fetch("/api/line/set-richmenu", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: lineProfile.userId,
+          richMenuId: "richmenu-569c61b59b2603bd9aaa49a124d060f5", // richmenu สมาชิก
+        }),
+      });
+    }
+
+    // loading + reset
     setTimeout(() => {
       setLoading(false);
       setForm({ regName: "", regLastname: "", regTel: "", regAgency: "", regPosition: "" });
@@ -100,6 +112,7 @@ function RegisterPage() {
     setLoading(false);
   }
 };
+
 
   // Neon Mouse BG style
   const glowStyle = mouse.active
