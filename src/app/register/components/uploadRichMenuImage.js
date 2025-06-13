@@ -1,0 +1,28 @@
+const fs = require('fs');
+const axios = require('axios');
+
+const channelAccessToken = 'cH2s8JQDcmOLJqUZ8T6cV07Jlp0AlCXi3ynTGw3hbBfSS/hHP3plTxVUjCS6E6k+3LY/nwWuNYAQ0obAgHq6MLfT1FL2mGSgoiFtM0SQIEydUeddqct5wtMndf5tsYl2qyf2HGBUvxO1zB6lPeYBJgdB04t89/1O/w1cDnyilFU=';
+const richMenuId = 'richmenu-22d4adf492788dcf65750089c0b4261f';
+const imagePath = './public/logo.png'; // <<-- แก้ path ให้ตรงกับไฟล์จริง
+
+if (!fs.existsSync(imagePath)) {
+  console.error('❌ ไม่พบไฟล์:', imagePath);
+  process.exit(1);
+}
+
+axios.post(
+  `https://api.line.me/v2/bot/richmenu/${richMenuId}/content`,
+  fs.createReadStream(imagePath),
+  {
+    headers: {
+      "Authorization": `Bearer ${channelAccessToken}`,
+      "Content-Type": "image/png"
+    }
+  }
+)
+.then(res => {
+  console.log('✅ อัปโหลดรูป RichMenu สำเร็จ', res.data);
+})
+.catch(err => {
+  console.error('❌ Upload error:', err.response?.data || err.message);
+});
