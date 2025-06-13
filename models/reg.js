@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const regSchema = new mongoose.Schema(
   {
-    regID: { type: String, required: true },
+    regID: { type: String, required: true  },
     regLineID: { type: String},
     regName: { type: String, required: true },
     regLastname: { type: String, required: true },
