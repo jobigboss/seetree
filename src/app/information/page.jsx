@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import liff from "@line/liff";   // <<< STATIC IMPORT
 
-// Custom Hook: ใช้ dynamic import กับ liff
 function useLineUserId(liffId) {
   const [userId, setUserId] = useState("");
   const [loading, setLoading] = useState(true);
@@ -11,7 +11,7 @@ function useLineUserId(liffId) {
     let isMounted = true;
     async function initLiff() {
       try {
-        const liff = (await import("@line/liff")).default;
+        // INIT แบบ static import
         if (!liff.isInitialized) {
           await liff.init({ liffId });
         }
@@ -22,13 +22,18 @@ function useLineUserId(liffId) {
         const profile = await liff.getProfile();
         if (isMounted) setUserId(profile.userId);
       } catch (err) {
-        if (isMounted) setError("ไม่สามารถดึง LINE ID ได้ ⚠️\n\nโปรดเปิดลิงก์นี้จากแอป LINE บนมือถือเท่านั้น หรือแจ้งแอดมิน");
+        if (isMounted)
+          setError(
+            "ไม่สามารถดึง LINE ID ได้ ⚠️\n\nโปรดเปิดลิงก์นี้จากแอป LINE บนมือถือเท่านั้น หรือแจ้งแอดมิน"
+          );
         console.error("LIFF Error:", err);
       }
       setLoading(false);
     }
     initLiff();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [liffId]);
 
   return { userId, loading, error };
