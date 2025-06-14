@@ -46,7 +46,11 @@ useEffect(() => {
           readOnly
           placeholder="LINE UserId"
         />
+        <div className="mt-1 text-gray-700 text-xs">
+          LINE UserID: <span className="font-mono text-blue-700">{userId || "-"}</span>
+        </div>
       </div>
+
       {loading && <div className="mb-4">กำลังโหลด...</div>}
       {userData && (
         <div className="max-w-sm w-full bg-white rounded-2xl shadow-lg p-7 flex flex-col items-center gap-4">
