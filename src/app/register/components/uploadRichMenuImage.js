@@ -1,29 +1,25 @@
 const fs = require('fs');
 const axios = require('axios');
 
-const channelAccessToken = 'r/qR6Ol1PjJ4pMqQt943qLHEpD3VbjjnLuComPyj4KcteaeLOcEFxMT0cZhUiT7i3LY/nwWuNYAQ0obAgHq6MLfT1FL2mGSgoiFtM0SQIEybA7p3K0vnJF1dRTFyFig5pxORlTaZYSiCS5h66jzQ5wdB04t89/1O/w1cDnyilFU=';
-const richMenuId = 'richmenu-9e2ef7471e5fab457460e7f94a0c995c';
-const imagePath = '../../../../public/richmenu_1749849024096.png';  // <<-- แก้ path ให้ตรงกับไฟล์จริง
+const channelAccessToken = 'r/qR6Ol1PjJ4pMqQt943qLHEpD3VbjjnLuComPyj4KcteaeLOcEFxMT0cZhUiT7i3LY/nwWuNYAQ0obAgHq6MLfT1FL2mGSgoiFtM0SQIEybA7p3K0vnJF1dRTFyFig5pxORlTaZYSiCS5h66jzQ5wdB04t89/1O/w1cDnyilFU='; // ใส่ตัวใหม่ที่เพิ่งใช้ได้จริง
+const richMenuId = 'richmenu-370037ea591efaf5a7d4af363333dacf';
+const imagePath = './public/richmenu_1749867562041.png'; // path รูป png ที่ถูกต้อง
 
-if (!fs.existsSync(imagePath)) {
-  console.error('❌ ไม่พบไฟล์:', imagePath);
-  process.exit(1);
-}
+const imageBuffer = fs.readFileSync(imagePath);
 
 axios.post(
-  `https://api.line.me/v2/bot/richmenu/${richMenuId}/content`,
-  fs.createReadStream(imagePath),
+  `https://api-data.line.me/v2/bot/richmenu/${richMenuId}/content`,
+  imageBuffer,
   {
     headers: {
-      "Authorization": `Bearer ${channelAccessToken}`,
-      "Content-Type": "image/png"
-    }
+      'Authorization': `Bearer ${channelAccessToken}`,
+      'Content-Type': 'image/png',
+    },
   }
 )
 .then(res => {
-  console.log('✅ อัปโหลดรูป RichMenu สำเร็จ', res.data);
+  console.log('✅ RichMenu image uploaded!');
 })
 .catch(err => {
-  // Print รายละเอียด error
   console.error('❌ Upload error:', err.response?.data || err.message);
 });
