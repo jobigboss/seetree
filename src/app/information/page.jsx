@@ -1,22 +1,35 @@
 "use client";
-import React, { useState } from "react";
-import QRCode from "qrcode.react"; // ถ้าใช้ Next.js 13+ ให้ npm i qrcode.react
+import React, { useState, useEffect } from "react";
+import QRCode from "qrcode.react";
+import liff from "@line/liff"; // npm i @line/liff
 
 function InformationPage() {
-  const [userData, setUserData] = useState(null);
   const [userId, setUserId] = useState("");
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handleFetch = async () => {
-    if (!userId) return;
+  // ดึง LINE userId ทันทีที่เข้าเพจ
+  useEffect(() => {
+    liff.init({ liffId: "2007571250-qDke3G3J" }).then(async () => {
+      if (!liff.isLoggedIn()) liff.login();
+      else {
+        const profile = await liff.getProfile();
+        setUserId(profile.userId);
+        // auto-fetch data หลังได้ userId
+        fetchUserData(profile.userId);
+      }
+    });
+  }, []);
+
+  // ฟังก์ชันดึงข้อมูลผู้ใช้จาก API
+  const fetchUserData = async (uid) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/register/${userId}`);
+      const res = await fetch(`/api/register/${uid}`);
       if (!res.ok) throw new Error("ไม่พบข้อมูล");
       const data = await res.json();
       setUserData(data);
     } catch (err) {
-      alert("ไม่พบข้อมูล userId นี้");
       setUserData(null);
     }
     setLoading(false);
@@ -24,21 +37,15 @@ function InformationPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 py-10">
-      <div className="mb-6 flex gap-2">
+      <div className="mb-6">
         <input
           className="border rounded-lg px-4 py-2"
-          placeholder="กรอก userId"
           value={userId}
-          onChange={e => setUserId(e.target.value)}
+          readOnly
+          placeholder="LINE UserId"
         />
-        <button
-          className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700"
-          onClick={handleFetch}
-          disabled={loading || !userId}
-        >
-          {loading ? "กำลังโหลด..." : "แสดงข้อมูล"}
-        </button>
       </div>
+      {loading && <div className="mb-4">กำลังโหลด...</div>}
       {userData && (
         <div className="max-w-sm w-full bg-white rounded-2xl shadow-lg p-7 flex flex-col items-center gap-4">
           <QRCode value={userData.regID || "NO-ID"} size={120} className="mb-3" />
@@ -50,6 +57,9 @@ function InformationPage() {
           <div className="text-gray-700">ตำแหน่ง: {userData.regPosition}</div>
           <div className="text-xs text-gray-400 mt-2">ID: {userData.regID}</div>
         </div>
+      )}
+      {!loading && !userData && (
+        <div className="text-gray-500 mt-4">ไม่พบข้อมูลสำหรับ LINE ID นี้</div>
       )}
     </div>
   );
