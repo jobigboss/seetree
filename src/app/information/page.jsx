@@ -3,33 +3,13 @@ import React, { useState, useEffect } from "react";
 import QRCode from "qrcode.react";
 import liff from "@line/liff";
 
-function useLineProfile(liffId, onProfile) {
-  useEffect(() => {
-    liff.init({ liffId }).then(async () => {
-      if (!liff.isLoggedIn()) {
-        liff.login();
-      } else {
-        const profile = await liff.getProfile();
-        onProfile(profile);
-      }
-    });
-    // eslint-disable-next-line
-  }, []);
-}
-
 function InformationPage() {
   const [userId, setUserId] = useState("");
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // --- ใช้ custom hook และดึงข้อมูล ---
-  useLineProfile("2007571250-qDke3G3J", (profile) => {
-    setUserId(profile.userId);
-    fetchUserData(profile.userId);
-  });
-
-  // ฟังก์ชันดึงข้อมูลผู้ใช้จาก API
-  const fetchUserData = async (uid) => {
+  // ฟังก์ชันดึงข้อมูลผู้ใช้จาก API (ประกาศเป็น function ปกติ)
+  async function fetchUserData(uid) {
     setLoading(true);
     try {
       const res = await fetch(`/api/register/${uid}`);
@@ -40,7 +20,22 @@ function InformationPage() {
       setUserData(null);
     }
     setLoading(false);
-  };
+  }
+
+  // ดึง LINE userId และข้อมูล ทันทีที่เข้าเพจ
+  useEffect(() => {
+    const initLiff = async () => {
+      await liff.init({ liffId: "2007571250-qDke3G3J" });
+      if (!liff.isLoggedIn()) {
+        liff.login();
+      } else {
+        const profile = await liff.getProfile();
+        setUserId(profile.userId);
+        fetchUserData(profile.userId);
+      }
+    };
+    initLiff();
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 py-10">
@@ -55,7 +50,6 @@ function InformationPage() {
           LINE UserID: <span className="font-mono text-blue-700">{userId || "-"}</span>
         </div>
       </div>
-
       {loading && <div className="mb-4">กำลังโหลด...</div>}
       {userData && (
         <div className="max-w-sm w-full bg-white rounded-2xl shadow-lg p-7 flex flex-col items-center gap-4">
