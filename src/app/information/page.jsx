@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import liff from "@line/liff";
-import QRCode from "qrcode.react"; // yarn add qrcode.react
+import dynamic from "next/dynamic";
+const QRCode = dynamic(() => import("qrcode.react"), { ssr: false });
 
 function useLineUserId(liffId) {
   const [userId, setUserId] = useState("");
@@ -12,6 +12,7 @@ function useLineUserId(liffId) {
     let isMounted = true;
     async function initLiff() {
       try {
+        const liff = (await import("@line/liff")).default;
         if (!liff.isInitialized) await liff.init({ liffId });
         if (!liff.isLoggedIn()) {
           liff.login();
@@ -29,7 +30,6 @@ function useLineUserId(liffId) {
     initLiff();
     return () => { isMounted = false; };
   }, [liffId]);
-
   return { userId, loading, error };
 }
 
@@ -39,7 +39,6 @@ export default function InformationPage() {
   const [dataError, setDataError] = useState("");
   const [dataLoading, setDataLoading] = useState(false);
 
-  // เมื่อได้ userId ให้ fetch ข้อมูล user
   useEffect(() => {
     if (!userId) return;
     setDataLoading(true);
@@ -57,19 +56,14 @@ export default function InformationPage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8f9fb]">
       <h2 className="text-2xl font-bold mb-4 text-gray-800 tracking-wide">LINE User ID</h2>
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl px-8 py-7 flex flex-col items-center gap-3">
-        {/* Show Loading/Error for LIFF */}
         {loading && <div className="text-gray-400 text-lg animate-pulse">(กำลังโหลด LINE ...)</div>}
         {error && (
           <div className="text-red-500 text-center text-base whitespace-pre-line">{error}</div>
         )}
-
-        {/* Show Data Fetch Loading/Error */}
         {userId && dataLoading && <div className="text-gray-400">(ดึงข้อมูลผู้ใช้ ...)</div>}
         {dataError && (
           <div className="text-red-500 text-center text-base">{dataError}</div>
         )}
-
-        {/* Show User Info and QRCode */}
         {userData && (
           <div className="w-full flex flex-col items-center gap-2">
             <QRCode value={userData.regID || "NO-ID"} size={140} className="mb-2" />
@@ -82,8 +76,6 @@ export default function InformationPage() {
             <div className="text-xs text-gray-400 mt-2">ID: {userData.regID}</div>
           </div>
         )}
-
-        {/* Fallback: No user found */}
         {userId && !dataLoading && !userData && !dataError && (
           <div className="text-gray-500 text-center">ไม่พบข้อมูลผู้ใช้</div>
         )}
