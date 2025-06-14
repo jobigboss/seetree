@@ -23,19 +23,21 @@ function InformationPage() {
   }
 
   // ดึง LINE userId และข้อมูล ทันทีที่เข้าเพจ
-  useEffect(() => {
-    const initLiff = async () => {
-      await liff.init({ liffId: "2007571250-qDke3G3J" });
-      if (!liff.isLoggedIn()) {
-        liff.login();
-      } else {
-        const profile = await liff.getProfile();
-        setUserId(profile.userId);
-        fetchUserData(profile.userId);
-      }
-    };
-    initLiff();
-  }, []);
+useEffect(() => {
+  const initLiff = async () => {
+    await liff.init({ liffId: "2007571250-qDke3G3J" });
+    if (!liff.isLoggedIn()) {
+      liff.login();
+    } else {
+      const profile = await liff.getProfile();
+      setUserId(profile.userId);
+      console.log("LIFF userId =", profile.userId);  // log ดู userId
+      fetchUserData(profile.userId);
+    }
+  };
+  initLiff();
+}, []);
+
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 py-10">
