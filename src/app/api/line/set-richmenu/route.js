@@ -1,11 +1,10 @@
-// src/app/api/line/set-richmenu/route.js
-import dbConnect from '../../lib/dbConnect'
+import { connectMongoDB } from '../../../../../lib/mongodb';
 import Register from '../../../../../models/reg'
 import axios from 'axios'
 
 export default async function handler(req, res) {
   const { userId } = req.body
-  await dbConnect()
+  await connectMongoDB()  // <<-- ต้องใช้ชื่อเดียวกับที่ import
   const user = await Register.findOne({ regLineID: userId })
   const isRegistered = !!user
   const richMenuId = isRegistered
