@@ -83,32 +83,36 @@ const handleSubmit = async (e) => {
     const { id } = await resId.json();
 
     // 2. POST ฟอร์ม + regID
-    await fetch("/api/submit/submit-register", {
+    const regRes = await fetch("/api/submit/submit-register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...form, regID: id, regLineID: lineProfile?.userId }),
     });
+    const regResData = await regRes.json();
+    console.log("Submit register:", regResData);
 
-    // 3. เรียกเปลี่ยน RichMenu (trigger API อัตโนมัติ)
-    await fetch("/api/line/set-richmenu", {
+    // 3. เรียกเปลี่ยน RichMenu
+    const richRes = await fetch("/api/line/set-richmenu", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: lineProfile?.userId }),
     });
+    const richResData = await richRes.json();
+    console.log("Rich menu API response:", richResData);
 
-
-    // loading + reset
     setTimeout(() => {
       setLoading(false);
       liff.closeWindow();
       setForm({ regName: "", regLastname: "", regTel: "", regAgency: "", regPosition: "" });
       setTouched({});
       nameRef.current?.focus();
-    }, 5000);
+    }, 2000); // ไม่จำเป็นต้องรอนาน 5 วิ (2 วิพอ)
   } catch (err) {
     setLoading(false);
+    console.error("Submit error:", err);
   }
 };
+
 
 
   // Neon Mouse BG style
