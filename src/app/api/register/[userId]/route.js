@@ -6,9 +6,9 @@ import { NextResponse } from 'next/server'
 export async function GET(req, { params }) {
   await connectMongoDB();
   const { userId } = params;
-  console.log("API GET userId", userId);
+  console.log("API GET userId =", userId);
   const user = await Register.findOne({ regLineID: userId });
-  console.log("API found user", user);
+  console.log("user found =", user);
   if (!user) {
     return NextResponse.json({ message: "Not found" }, { status: 404 });
   }
