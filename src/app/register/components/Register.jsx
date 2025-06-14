@@ -89,6 +89,13 @@ const handleSubmit = async (e) => {
       body: JSON.stringify({ ...form, regID: id, regLineID: lineProfile?.userId }),
     });
 
+    // 3. เรียกเปลี่ยน RichMenu (trigger API อัตโนมัติ)
+    await fetch("/api/line/set-richmenu", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: lineProfile?.userId }),
+    });
+
 
     // loading + reset
     setTimeout(() => {
