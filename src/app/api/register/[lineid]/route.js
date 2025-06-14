@@ -8,9 +8,8 @@ export async function GET(req, { params }) {
   try {
     await connectMongoDB();
     const { lineid } = params;
-    const user = await Register.findOne({ regLineID: lineid }); 
+    const user = await Register.findOne({ regLineID: lineid });
     if (!user) return NextResponse.json({ message: "not found" }, { status: 404 });
-    // ส่งข้อมูลสำคัญกลับไป
     return NextResponse.json({
       regID: user.regID,
       regName: user.regName,
@@ -20,7 +19,6 @@ export async function GET(req, { params }) {
       regPosition: user.regPosition,
     });
   } catch (error) {
-    console.error("Error fetching Register:", error);
-    return NextResponse.json({ message: "Error", error }, { status: 500 });
+    return NextResponse.json({ message: "server error" }, { status: 500 });
   }
 }
