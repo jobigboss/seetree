@@ -1,27 +1,32 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import QRCode from "qrcode.react";
-import liff from "@line/liff"; // npm i @line/liff
+import liff from "@line/liff";
+
+function useLineProfile(liffId, onProfile) {
+  useEffect(() => {
+    liff.init({ liffId }).then(async () => {
+      if (!liff.isLoggedIn()) {
+        liff.login();
+      } else {
+        const profile = await liff.getProfile();
+        onProfile(profile);
+      }
+    });
+    // eslint-disable-next-line
+  }, []);
+}
 
 function InformationPage() {
   const [userId, setUserId] = useState("");
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // ดึง LINE userId ทันทีที่เข้าเพจ
-useEffect(() => {
-  liff.init({ liffId: "2007571250-qDke3G3J" }).then(async () => {
-    if (!liff.isLoggedIn()) {
-      liff.login();
-    } else {
-      const profile = await liff.getProfile();
-      console.log('LIFF userId =', profile.userId); // <<-- ใส่ log นี้
-      setUserId(profile.userId);
-      fetchUserData(profile.userId);
-    }
+  // --- ใช้ custom hook และดึงข้อมูล ---
+  useLineProfile("2007571250-qDke3G3J", (profile) => {
+    setUserId(profile.userId);
+    fetchUserData(profile.userId);
   });
-}, []);
-
 
   // ฟังก์ชันดึงข้อมูลผู้ใช้จาก API
   const fetchUserData = async (uid) => {
