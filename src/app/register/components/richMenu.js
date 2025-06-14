@@ -10,12 +10,18 @@ const MONGO_URI = process.env.MONGODB_URI;
 const REGISTER_MENU_ID = 'richmenu-9e2ef7471e5fab457460e7f94a0c995c'; // ยังไม่สมัคร
 const MEMBER_MENU_ID   = 'richmenu-370037ea591efaf5a7d4af363333dacf'; // สมัครแล้ว
 
-// --- Mongoose Model ---
-const userSchema = new mongoose.Schema({
-  regLineID: String,
-  // ...field อื่นๆ
-});
-const User = mongoose.model('User', userSchema, 'users');
+// --- Mongoose Model (ใช้ Register และ field regLineID) ---
+const regSchema = new mongoose.Schema({
+  regID: String,
+  regLineID: String, // <<== field นี้
+  regName: String,
+  regLastname: String,
+  regTel: String,
+  regAgency: String,
+  regPosition: String,
+  regRole: { type: String, default: "emp" },
+}, { timestamps: true });
+const Register = mongoose.model('Register', regSchema, 'Register');
 
 // --- Set RichMenu Function ---
 async function setRichMenu(userId, isRegistered) {
@@ -30,8 +36,9 @@ async function setRichMenu(userId, isRegistered) {
 // --- Main ---
 async function run(userId) {
   await mongoose.connect(MONGO_URI);
-  // เช็กว่า user นี้มีใน DB มั้ย
-  const user = await User.findOne({ regLineID: userId });
+  // <<== ค้นใน Register collection, field regLineID
+  const user = await Register.findOne({ regLineID: userId });
+  console.log('DEBUG user:', user);
   const isRegistered = !!user;
   await setRichMenu(userId, isRegistered);
   console.log('✅ Rich menu updated!', isRegistered ? '(Member)' : '(Register)');
