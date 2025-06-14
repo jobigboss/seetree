@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import liff from "@line/liff";   // <<< STATIC IMPORT
+import liff from "@line/liff"; 
 
 function useLineUserId(liffId) {
   const [userId, setUserId] = useState("");
@@ -40,7 +40,7 @@ function useLineUserId(liffId) {
 }
 
 export default function InformationPage() {
-  const { userId, loading, error } = useLineUserId("2007571250-qDke3G3J");
+  const { userId, loading, error } = useLineUserId("2007571250-Y32QajaJ");
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[#f8f9fb]">
