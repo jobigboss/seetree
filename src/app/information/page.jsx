@@ -5,14 +5,18 @@ import liff from "@line/liff";
 function useLineProfile({ liffId, onProfile }) {
   React.useEffect(() => {
     liff.init({ liffId }).then(async () => {
-      if (!liff.isLoggedIn()) liff.login();
-      else {
+      if (!liff.isLoggedIn()) {
+        console.log("Not logged in, redirecting to login...");
+        liff.login();
+      } else {
         const profile = await liff.getProfile();
+        console.log("LIFF Profile:", profile); // จะเห็น userId หรือ error
         onProfile(profile);
       }
     });
   }, []);
 }
+
 
 function InformationPage() {
   const [userId, setUserId] = useState("");
