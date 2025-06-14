@@ -1,42 +1,57 @@
 "use client";
-import React, { useState } from "react";
-import liff from "@line/liff";
+import React, { useState, useEffect } from "react";
 
-function useLineProfile({ liffId, onProfile }) {
-  React.useEffect(() => {
-    (async () => {
+// Custom hook สำหรับดึง LINE Profile
+function useLineUserId(liffId) {
+  const [userId, setUserId] = useState("");
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(""); // Error state
+
+  useEffect(() => {
+    let isMounted = true;
+    async function initLiff() {
       try {
-        await liff.init({ liffId });
-        console.log("LIFF init success");
+        // Dynamic import เพื่อป้องกัน SSR error
+        const liff = (await import("@line/liff")).default;
+        if (!liff.isInitialized) {
+          await liff.init({ liffId });
+        }
         if (!liff.isLoggedIn()) {
-          console.log("Not logged in, redirecting to login...");
           liff.login();
-        } else {
-          const profile = await liff.getProfile();
-          console.log("LIFF Profile:", profile);
-          onProfile(profile);
+          return;
+        }
+        const profile = await liff.getProfile();
+        if (isMounted) {
+          setUserId(profile.userId);
         }
       } catch (err) {
-        console.error("LIFF error:", err);
+        setError("ไม่สามารถดึง LINE ID ได้");
+        console.error("LIFF Error:", err);
       }
-    })();
-  }, []);
+      setLoading(false);
+    }
+    initLiff();
+    return () => {
+      isMounted = false;
+    };
+  }, [liffId]);
+
+  return { userId, loading, error };
 }
 
-function InformationPage() {
-  const [userId, setUserId] = useState("");
-  useLineProfile({
-    liffId: "2007571250-qDke3G3J",
-    onProfile: (profile) => setUserId(profile.userId)
-  });
+export default function InformationPage() {
+  const { userId, loading, error } = useLineUserId("2007571250-qDke3G3J");
+
   return (
-    <div className="p-8 text-center">
-      <div className="mb-2 font-bold">LINE User ID</div>
-      <div className="font-mono bg-gray-100 px-4 py-2 rounded">
-        {userId || "(กำลังโหลด...)"}
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+      <h2 className="text-2xl font-bold mb-4">LINE User ID</h2>
+      <div className="w-full max-w-xs bg-white rounded-xl shadow p-6 flex flex-col items-center">
+        {loading && <div className="text-gray-400">(กำลังโหลด ...)</div>}
+        {error && <div className="text-red-500">{error}</div>}
+        {userId && (
+          <div className="font-mono text-blue-700 break-all text-lg">{userId}</div>
+        )}
       </div>
     </div>
   );
 }
-
-export default InformationPage;
